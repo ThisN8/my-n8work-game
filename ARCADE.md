@@ -30,7 +30,7 @@ game:
   license: "unknown"
 
 creator:                     # (HUMAN) ask the human for every field here
-  name: "unknown"
+  name: "N8"
   github: "unknown"
   location: "unknown"
   organization: "unknown"
@@ -94,7 +94,7 @@ Night Shift puts you on call for a small outpost from midnight to dawn. Follow a
 
 The workshop starter kit supplied the constitution, first playable specification and plan. The team adopted the constitution in Spec Kit, wrote the feature specification and clarified how a learner could skip a broken incident while keeping the session incomplete. Planning produced the research notes, data model, interface contract and quickstart. The six task phases followed. Cross-artifact analysis was reported in the conversation. The research helper's exact model ID and the earlier implementation model ID are unknown. The later session reported the model listed above. No MCP server calls were recorded during the build.
 
-The first prototype played like a console quiz. The creator asked for a pixel survival game, which led to an outpost that lights up as the player repairs devices. Device settings, packet probes and an inspectable switch rack followed. Early sandboxed browser runs failed during graphics initialization. Headless Edge later ran against a local Python HTTP server and completed the six-site playthrough. The Arcade verification reran that playthrough and the separate browser suite, which passed all 35 checks.
+The first prototype played like a console quiz. The creator asked for a pixel survival game, which led to an outpost that lights up as the player repairs devices. Device settings, packet probes and an inspectable switch rack followed. Early sandboxed browser runs failed during graphics initialization. Headless Edge later ran against a local Python HTTP server and completed the six-site playthrough. On 2026-11-17, Arcade verification served the game from the repository root on port 8000 and reran both pages in headless Edge. The playthrough reached daybreak and all 35 browser checks passed. The game code tested was committed in Git as 5c87bc5.
 
 ## What we'd tell the next builder
 
