@@ -37,7 +37,7 @@ creator:                     # (HUMAN) ask the human for every field here
   links: []
   first_spec_project: "unknown"
   workshop: "NAF AC6"
-  consent_to_publish: false
+  consent_to_publish: true
 
 build:                       # the BUILD environment — what made the game
   started: "unknown"
