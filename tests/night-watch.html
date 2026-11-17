@@ -1,0 +1,62 @@
+<!doctype html>
+<meta charset="utf-8"><title>Night watch playthrough</title>
+<p id="result">Running playthrough…</p><iframe title="Game under test" src="../"></iframe>
+<script type="module">
+const frame = document.querySelector('iframe');
+const repairs = [['10'],['192.168.30.1'],['10.0.0.2','192.168.40.0/24'],['20'],['10.0.0.2','192.168.40.0/24'],['50']];
+const wait = () => new Promise(resolve => setTimeout(resolve, 20));
+try {
+  const doc = () => frame.contentDocument;
+  const click = selector => doc().querySelector(selector).click();
+  const action = id => click('[data-action="' + id + '"]');
+  const read = () => doc().querySelector('.outpost-caption').textContent;
+  for (let i = 0; i < 100 && !doc()?.querySelector('[data-action="start"]'); i++) await wait();
+  for (const [i,[setting,network]] of repairs.entries()) {
+    if (i % 2 === 0) action('start');
+    if (i === 3) {
+      action('radio');
+      const report = doc().querySelector('#crew-report');
+      if (report.hidden || !report.textContent.includes('VLAN 20')) throw Error('Missing pump operator report');
+    }
+    const probe = (index, expected) => {
+      doc().querySelector('.probe-target').value = String(index);
+      action('probe');
+      const log = doc().querySelector('.probe-log');
+      if (!log.textContent.endsWith(expected)) throw Error('Probe outcome at site '+i);
+    };
+    const before = [['No echo reply','Echo reply received'],['Echo reply received','No echo reply'],
+      ['Echo reply received','No echo reply'],['No echo reply','Echo reply received'],
+      ['Echo reply received','No echo reply'],['No echo reply','No echo reply']];
+    before[i].forEach((expected,index) => probe(index,expected));
+    if (i === 0) {
+      click('[data-device="1"]'); doc().querySelector('[name=setting]').value='192.168.10.254'; click('[type=submit]');
+      if (!read().includes('0/6 sites online')) throw Error('Wrong repair powered a site');
+    }
+    click('[data-device="0"]');
+    if (i === 0) {
+      if (doc().querySelectorAll('.rack-port').length !== 8) throw Error('Expected eight switch ports');
+      click('[data-port="1"]');
+      if (doc().querySelector('#service')) throw Error('Spare port should be inspect-only');
+      click('[data-port="6"]');
+      if (!doc().querySelector('.rack-reading').textContent.includes('link up · Access VLAN 20')) throw Error('Incorrect live readout');
+    }
+    doc().querySelector('[name=setting]').value=setting;
+    if(network) doc().querySelector('[name=network]').value=network;
+    click('[type=submit]');
+    if (!read().includes((i+1)+'/6 sites online')) throw Error('Beacon count at site '+i);
+    if (i === 0 && !doc().querySelector('.outpost p').textContent.includes('Barrier raised')) throw Error('Delivery did not clear');
+    if (i === 0 && (!doc().querySelector('.rack-reading').textContent.includes('link up · Access VLAN 10') ||
+      !doc().querySelector('.rack-probe .probe-target'))) throw Error('Missing repaired rack or rack probe');
+    probe(0,'Echo reply received');
+    probe(1,i===5?'No echo reply':'Echo reply received');
+    const earned = () => doc().querySelectorAll('.site-patch[data-earned="true"]').length;
+    if (earned() !== i+1) throw Error('Missing field patch at site '+i);
+    probe(0,'Echo reply received');
+    if (earned() !== i+1) throw Error('Duplicate field patch');
+    action('next');
+    if (i % 2 === 1) action('next-level');
+  }
+  if (!read().includes('DAYBREAK') || doc().querySelector('#view-title').textContent !== 'Session complete') throw Error('Missing dawn summary');
+  document.querySelector('#result').textContent='PASS: six-site night watch';
+} catch (error) { document.querySelector('#result').textContent='FAIL: '+error.message; }
+</script>

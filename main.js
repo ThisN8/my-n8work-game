@@ -1,0 +1,4 @@
+import {validateContent} from './engine/content.js';
+import {mount} from './ui/controls.js';
+async function start() { const app=document.querySelector('#app'); try { const response=await fetch('./data/levels.json'); if(!response.ok) throw new Error('The incident file could not be loaded.'); const data=validateContent(await response.json()); mount(data); } catch(error) { app.innerHTML=''; const section=document.createElement('section'); section.className='panel'; const title=document.createElement('h2'); title.textContent='Unable to load incidents'; const message=document.createElement('p'); message.textContent=error.message; const retry=document.createElement('button'); retry.textContent='Retry loading'; retry.addEventListener('click',start); section.append(title,message,retry); app.append(section); } }
+start();
